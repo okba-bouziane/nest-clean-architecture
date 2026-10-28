@@ -1,0 +1,27 @@
+<header class="topbar">
+  <div class="brand">
+    <span class="logo" aria-hidden="true"></span>
+    <div>
+      <h1>Clean Tasks</h1>
+      <p class="muted">NestJS clean architecture · Angular</p>
+    </div>
+  </div>
+
+  <div class="status" aria-label="Service status">
+    <span class="chip" [class.up]="health()?.postgres === 'up'">PostgreSQL</span>
+    <span class="chip" [class.up]="health()?.mongo === 'up'">MongoDB</span>
+    <span class="chip" [class.up]="!!auth.username()">Keycloak</span>
+  </div>
+
+  <div class="user">
+    <div class="who">
+      <strong>{{ auth.username() }}</strong>
+      <span class="role">{{ auth.isAdmin() ? 'admin' : 'user' }}</span>
+    </div>
+    <button type="button" class="ghost" (click)="auth.logout()">Log out</button>
+  </div>
+</header>
+
+<main>
+  <app-board />
+</main>

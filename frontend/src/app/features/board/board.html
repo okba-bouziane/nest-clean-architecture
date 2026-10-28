@@ -1,0 +1,90 @@
+@if (error(); as message) {
+  <div class="alert" role="alert">
+    <span>{{ message }}</span>
+    <button type="button" class="link" (click)="error.set(null)">Dismiss</button>
+  </div>
+}
+
+<div class="grid">
+  <section class="card">
+    <header class="card-head">
+      <div>
+        <h2>Tasks</h2>
+        <p class="muted">{{ openCount() }} open · {{ doneCount() }} done</p>
+      </div>
+      <span class="store store-pg">PostgreSQL · TypeORM</span>
+    </header>
+
+    <form class="add" [formGroup]="form" (ngSubmit)="add()">
+      <input
+        formControlName="title"
+        placeholder="What needs to be done?"
+        maxlength="120"
+        aria-label="New task title"
+      />
+      <button type="submit" class="primary" [disabled]="form.invalid">Add task</button>
+    </form>
+
+    <ul class="tasks">
+      @for (task of tasks(); track task.id) {
+        <li [class.done]="task.status === 'DONE'">
+          <label>
+            <input
+              type="checkbox"
+              [checked]="task.status === 'DONE'"
+              (change)="toggle(task)"
+              [attr.aria-label]="'Mark ' + task.title + ' as done'"
+            />
+            <span class="task-title">{{ task.title }}</span>
+          </label>
+          <time class="muted">{{ task.createdAt | date: 'MMM d, HH:mm' }}</time>
+          <button
+            type="button"
+            class="icon"
+            [class.locked]="!auth.isAdmin()"
+            (click)="remove(task)"
+            [title]="
+              auth.isAdmin() ? 'Delete task' : 'Admin only: the API checks your Keycloak role'
+            "
+            aria-label="Delete task"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"
+              />
+            </svg>
+          </button>
+        </li>
+      } @empty {
+        <li class="empty">No tasks yet. Add the first one above.</li>
+      }
+    </ul>
+  </section>
+
+  <section class="card">
+    <header class="card-head">
+      <div>
+        <h2>Activity log</h2>
+        <p class="muted">Who changed what, and when</p>
+      </div>
+      <span class="store store-mongo">MongoDB · Mongoose</span>
+    </header>
+
+    <ol class="feed">
+      @for (item of activity(); track item.id) {
+        <li>
+          <span class="dot" [attr.data-type]="item.type"></span>
+          <div>
+            <p>
+              <strong>{{ item.actor }}</strong> {{ verbs[item.type] }}
+              <q>{{ item.taskTitle }}</q>
+            </p>
+            <time class="muted">{{ item.occurredAt | date: 'MMM d, HH:mm:ss' }}</time>
+          </div>
+        </li>
+      } @empty {
+        <li class="empty">Nothing yet.</li>
+      }
+    </ol>
+  </section>
+</div>
